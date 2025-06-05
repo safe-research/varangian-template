@@ -1,4 +1,4 @@
-name: Varangian Actions Co-Signer
+name: Varangian Co-Signer
 
 on:
   schedule:
