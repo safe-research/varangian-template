@@ -27,6 +27,10 @@ For this go to `Actions` > `Varangian Guard` (in the left sidebar) and click `Ru
 
 After this the Varangian Guard will check every 5 to 10 minutes if a new transaction is ready. If this is the case it will sign the transaction and relay it.
 
+### Getting the Co-Signer Address
+
+As part of the actions the Varangian Guard co-signer address will be displayed. For this go to `Actions` > `Varangian Guard` and click on one of the runs. There will be an action displayed called `fetch-check-relay`. When clicking on it you can select the `Check Tx` step which prints the co-signer address.
+
 ### Setting up the Guard on the Safe
 
 The Varangian Guard is based on the Safenet Guard. There are three steps necessary to complete the setup:
