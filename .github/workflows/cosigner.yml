@@ -1,8 +1,11 @@
-name: Varangian Guard
+name: Varangian Co-Signer
+
+permissions:
+  contents: write
 
 on:
   schedule:
-    - cron: '* * * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch: # Allows manual triggering
 
 concurrency: safe-tx-relayer
@@ -11,44 +14,65 @@ jobs:
   fetch-check-relay:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout Varangian Repository
         uses: actions/checkout@v4
         with:
           repository: safe-research/varangian
+          ref: d2a60db9611d827e6df38797c94a5dc5ce526ba8
+          path: varangian
+          
+      - name: Checkout User Repository
+        uses: actions/checkout@v4
+        with:
+          path: user
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm' # Cache npm dependencies for faster builds
-          cache-dependency-path: 'actions/package-lock.json'
+          cache-dependency-path: 'varangian/actions/package-lock.json'
 
       - name: Install All Dependencies (using workspaces)
-        working-directory: actions
+        working-directory: varangian/actions
         run: npm install
 
       - name: Build
-        working-directory: actions
+        working-directory: varangian/actions
         run: npm run build:all
 
       - name: Fetch Tx
         id: fetch-tx
-        uses: ./actions/fetch-tx 
+        uses: ./varangian/actions/fetch-tx 
         with:
           safe-address: ${{ secrets.SAFE_ADDRESS }}
           service-url: ${{ secrets.SERVICE_URL }}
 
       - name: Check Tx
         id: check-tx
-        uses: ./actions/check 
+        uses: ./varangian/actions/check 
         with:
           co-signer-material: ${{ secrets.COSIGNER_MATERIAL }}
           safe-tx: ${{ steps.fetch-tx.outputs.safe-tx }}
 
+      - name: Update Co-Signer Info
+        id: co-signer-info
+        working-directory: user
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CO_SIGNER_ADDRESS: ${{ steps.check-tx.outputs.co-signer-address }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo address=$CO_SIGNER_ADDRESS > CO_SIGNER_INFO
+          git add CO_SIGNER_INFO
+          git commit -m "Update Co-Signer Address" || true
+          git push
+
       - name: Relay Tx
         id: relay
         if: ${{ steps.fetch-tx.outputs.safe-tx != '' }}
-        uses: ./actions/relay 
+        uses: ./varangian/actions/relay 
         with:
           co-signer-signature: ${{ steps.check-tx.outputs.co-signer-signature }}
           safe-tx: ${{ steps.fetch-tx.outputs.safe-tx }}
