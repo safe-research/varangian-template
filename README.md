@@ -18,6 +18,8 @@ For the actions to work multiple secrets need to be set in the settings. For thi
   - Example: `0x779720809250AF7931935a192FCD007479C41299`
 - `SERVICE_URL` - base url of the service that is used to submit transactions
   - Example: `https://safe-transaction-gnosis-chain.safe.global/`
+- `SIGNATURE_1271_COMPATIBLE` - boolean variable for denoting the type of cosigner signature encoding
+  - Example: `true` for 1271 compatible signature encoding, and `false` for EOA based cosigner signature only.
 
 ### Activating Actions
 
