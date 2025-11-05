@@ -51,6 +51,7 @@ jobs:
         with:
           safe-address: ${{ secrets.SAFE_ADDRESS }}
           service-url: ${{ secrets.SERVICE_URL }}
+          safe-tx-hash: ${{ inputs.safe-tx-hash }}
 
       - name: Check Tx
         id: check-tx
